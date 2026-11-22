@@ -8,8 +8,8 @@ global:
 langfuse:
   enabled: true
   host: "http://langfuse-web.langfuse.svc.cluster.local:3000"
-  publicKey: "pk-lf-replace-me"
-  secretKey: "sk-lf-replace-me"
+  publicKey: "pk-lf-5b124db5-4594-4ba5-b4f5-8bdd3023baa0"
+  secretKey: "sk-lf-64605c1d-dd41-482c-9fc6-fecdbb8e4b7a"
 
 orchestrator:
   enabled: true
