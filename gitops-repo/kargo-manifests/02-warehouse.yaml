@@ -4,16 +4,11 @@ metadata:
   name: order-agents-warehouse
   namespace: order-management
 spec:
+  freightCreationPolicy: Automatic
+  interval: 5m0s
   subscriptions:
-    - image:
-        repoURL: ghcr.io/your-org/a2a-orchestrator-agent
-        constraint: ^0.1.0
-    - image:
-        repoURL: ghcr.io/your-org/a2a-triage-agent
-        constraint: ^0.1.0
-    - image:
-        repoURL: ghcr.io/your-org/a2a-allocation-agent
-        constraint: ^0.1.0
-    - image:
-        repoURL: ghcr.io/your-org/a2a-credit-agent
-        constraint: ^0.1.0
+    - git:
+        repoURL: https://github.com/avelumani/a2a-e2e-complete-platform.git
+        branch: main
+        includePaths:
+          - gitops-repo/order-agents-chart
