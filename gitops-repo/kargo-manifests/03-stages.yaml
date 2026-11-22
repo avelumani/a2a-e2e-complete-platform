@@ -1,0 +1,118 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: dev
+  namespace: order-management
+  annotations:
+    kargo.akuity.io/color: blue
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: order-agents-warehouse
+      sources:
+        direct: true
+  promotionTemplate:
+    spec:
+      vars:
+        - name: gitopsRepo
+          value: https://github.com/avelumani/a2a-e2e-complete-platform.git
+      steps:
+        - uses: git-clone
+          config:
+            repoURL: ${{ vars.gitopsRepo }}
+            checkout:
+              - branch: main
+                path: ./src
+        - uses: helm-update-image
+          as: update-images
+          config:
+            path: ./src/order-agents-chart/values.yaml
+            images:
+              - image: ghcr.io/your-org/a2a-orchestrator-agent
+                key: orchestrator.image.tag
+                value: Tag
+              - image: ghcr.io/your-org/a2a-triage-agent
+                key: triage.image.tag
+                value: Tag
+              - image: ghcr.io/your-org/a2a-allocation-agent
+                key: allocation.image.tag
+                value: Tag
+              - image: ghcr.io/your-org/a2a-credit-agent
+                key: credit.image.tag
+                value: Tag
+        - uses: git-commit
+          as: commit
+          config:
+            path: ./src
+            message: ${{ outputs['update-images'].commitMessage }}
+        - uses: git-push
+          config:
+            path: ./src
+        - uses: argocd-update
+          config:
+            apps:
+              - name: order-agents-dev
+                sources:
+                  - repoURL: ${{ vars.gitopsRepo }}
+                    desiredRevision: ${{ outputs.commit.commit }}
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: staging
+  namespace: order-management
+  annotations:
+    kargo.akuity.io/color: green
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: order-agents-warehouse
+      sources:
+        stages:
+          - dev
+  promotionTemplate:
+    spec:
+      vars:
+        - name: gitopsRepo
+          value: https://github.com/avelumani/a2a-e2e-complete-platform.git
+      steps:
+        - uses: git-clone
+          config:
+            repoURL: ${{ vars.gitopsRepo }}
+            checkout:
+              - branch: main
+                path: ./src
+        - uses: helm-update-image
+          as: update-images
+          config:
+            path: ./src/order-agents-chart/values.yaml
+            images:
+              - image: ghcr.io/your-org/a2a-orchestrator-agent
+                key: orchestrator.image.tag
+                value: Tag
+              - image: ghcr.io/your-org/a2a-triage-agent
+                key: triage.image.tag
+                value: Tag
+              - image: ghcr.io/your-org/a2a-allocation-agent
+                key: allocation.image.tag
+                value: Tag
+              - image: ghcr.io/your-org/a2a-credit-agent
+                key: credit.image.tag
+                value: Tag
+        - uses: git-commit
+          as: commit
+          config:
+            path: ./src
+            message: ${{ outputs['update-images'].commitMessage }}
+        - uses: git-push
+          config:
+            path: ./src
+        - uses: argocd-update
+          config:
+            apps:
+              - name: order-agents-staging
+                sources:
+                  - repoURL: ${{ vars.gitopsRepo }}
+                    desiredRevision: ${{ outputs.commit.commit }}

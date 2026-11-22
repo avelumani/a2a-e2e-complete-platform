@@ -1,0 +1,6 @@
+apiVersion: v2
+name: order-agents-chart
+description: Helm chart deploying Orchestrator, Triage, Allocation, and Credit A2A LangGraph microservices
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

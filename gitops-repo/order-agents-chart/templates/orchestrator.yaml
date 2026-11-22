@@ -1,0 +1,60 @@
+{{- if .Values.orchestrator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator-agent
+  labels:
+    app: orchestrator-agent
+    app.kubernetes.io/part-of: a2a-order-management
+spec:
+  replicas: {{ .Values.orchestrator.replicas }}
+  selector:
+    matchLabels:
+      app: orchestrator-agent
+  template:
+    metadata:
+      labels:
+        app: orchestrator-agent
+    spec:
+      containers:
+        - name: orchestrator-agent
+          image: "{{ .Values.orchestrator.image.repository }}:{{ .Values.orchestrator.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.orchestrator.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.orchestrator.port | quote }}
+            - name: PUBLIC_URL
+              value: "http://orchestrator-agent:{{ .Values.orchestrator.port }}"
+          envFrom:
+            - configMapRef:
+                name: order-agents-config
+            - secretRef:
+                name: order-agents-secrets
+          command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "{{ .Values.orchestrator.port }}"]
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.orchestrator.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator-agent
+  labels:
+    app: orchestrator-agent
+spec:
+  type: {{ .Values.orchestrator.service.type }}
+  selector:
+    app: orchestrator-agent
+  ports:
+    - name: http
+      port: {{ .Values.orchestrator.port }}
+      targetPort: {{ .Values.orchestrator.port }}
+      {{- if eq .Values.orchestrator.service.type "NodePort" }}
+      nodePort: {{ .Values.orchestrator.service.nodePort }}
+      {{- end }}
+{{- end }}

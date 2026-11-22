@@ -1,0 +1,57 @@
+{{- if .Values.triage.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triage-agent
+  labels:
+    app: triage-agent
+    app.kubernetes.io/part-of: a2a-order-management
+spec:
+  replicas: {{ .Values.triage.replicas }}
+  selector:
+    matchLabels:
+      app: triage-agent
+  template:
+    metadata:
+      labels:
+        app: triage-agent
+    spec:
+      containers:
+        - name: triage-agent
+          image: "{{ .Values.triage.image.repository }}:{{ .Values.triage.image.tag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.triage.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.triage.port | quote }}
+            - name: PUBLIC_URL
+              value: "http://triage-agent:{{ .Values.triage.port }}"
+          envFrom:
+            - configMapRef:
+                name: order-agents-config
+            - secretRef:
+                name: order-agents-secrets
+          command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "{{ .Values.triage.port }}"]
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.triage.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triage-agent
+  labels:
+    app: triage-agent
+spec:
+  type: ClusterIP
+  selector:
+    app: triage-agent
+  ports:
+    - name: http
+      port: {{ .Values.triage.port }}
+      targetPort: {{ .Values.triage.port }}
+{{- end }}

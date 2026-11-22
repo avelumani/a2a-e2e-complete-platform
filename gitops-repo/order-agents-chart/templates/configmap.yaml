@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-agents-config
+  labels:
+    app.kubernetes.io/part-of: a2a-order-management
+data:
+  USE_MOCK_LLM: {{ .Values.global.useMockLlm | quote }}
+  OPENAI_MODEL: {{ .Values.global.openaiModel | quote }}
+  SQUAD_NAME: {{ .Values.global.squadName | quote }}
+  LANGFUSE_HOST: {{ .Values.langfuse.host | quote }}
+  TRIAGE_AGENT_URL: "http://triage-agent:{{ .Values.triage.port }}"
+  ALLOCATION_AGENT_URL: "http://allocation-agent:{{ .Values.allocation.port }}"
+  CREDIT_AGENT_URL: "http://credit-agent:{{ .Values.credit.port }}"

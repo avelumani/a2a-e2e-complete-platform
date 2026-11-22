@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: order-agents-dev
+  namespace: argocd
+  annotations:
+    kargo.akuity.io/authorized-stage: order-management:dev
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/avelumani/a2a-e2e-complete-platform.git
+    targetRevision: main
+    path: order-agents-chart
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: order-agents-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

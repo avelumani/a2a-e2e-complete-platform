@@ -1,0 +1,47 @@
+global:
+  imagePullPolicy: IfNotPresent
+  useMockLlm: "true"
+  openaiModel: "gpt-4o-mini"
+  openaiApiKey: ""
+  squadName: "Order-to-Cash Platform Squad"
+
+langfuse:
+  enabled: true
+  host: "http://langfuse-web.langfuse.svc.cluster.local:3000"
+  publicKey: "pk-lf-replace-me"
+  secretKey: "sk-lf-replace-me"
+
+orchestrator:
+  enabled: true
+  replicas: 1
+  image:
+    repository: a2a-orchestrator-agent
+    tag: v0.1.0
+  port: 8000
+  service:
+    type: NodePort
+    nodePort: 30080
+
+triage:
+  enabled: true
+  replicas: 1
+  image:
+    repository: a2a-triage-agent
+    tag: v0.1.0
+  port: 8001
+
+allocation:
+  enabled: true
+  replicas: 1
+  image:
+    repository: a2a-allocation-agent
+    tag: v0.1.0
+  port: 8002
+
+credit:
+  enabled: true
+  replicas: 1
+  image:
+    repository: a2a-credit-agent
+    tag: v0.1.0
+  port: 8003

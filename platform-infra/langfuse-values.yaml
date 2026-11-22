@@ -1,0 +1,28 @@
+langfuse:
+  salt:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: salt
+  encryptionKey:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: encryptionKey
+  nextauth:
+    url: "http://localhost:3000"
+    secret:
+      secretKeyRef:
+        name: langfuse-secrets
+        key: nextauth-secret
+  service:
+    type: NodePort
+    nodePort: 30300
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+clickhouse:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
